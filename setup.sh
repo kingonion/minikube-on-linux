@@ -12,7 +12,8 @@ MINIKUBE_HOME=/opt/minikube
 BASE_DIR=$(cd $(dirname "$BASH_SOURCE[0]"); pwd)
 
 RED=$(tput setaf 1)
-GREEN=$(tput setaf 76)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
 RESET=$(tput sgr0)
 
 function logger_error() {
@@ -24,6 +25,12 @@ function logger_error() {
 function logger_info() {
     local time=$(date +'%F %T')
     printf "${GREEN}${time} - INFO - %s${RESET}\n" "$@"
+    echo "${time} - INFO - $@" >> ${BASE_DIR}/logs/setup.log
+}
+
+function logger_warn() {
+    local time=$(date +'%F %T')
+    printf "${YELLOW}${time} - WARN - %s${RESET}\n" "$@"
     echo "${time} - INFO - $@" >> ${BASE_DIR}/logs/setup.log
 }
 
@@ -84,7 +91,6 @@ function get_host_arch() {
             ;;
     esac
     echo "${host_arch}"
-
 }
 
 # download minikube and kubelet
@@ -105,7 +111,7 @@ function download_binaries() {
         download "https://storage.googleapis.com/kubernetes-release/release/stable.txt" stable.txt
         local kube_version=$(cat stable.txt | awk 'NR == 1 { print }')
         download "${STORAGE_HOST}/kubernetes-release/release/${kube_version}/bin/${host_os}/${host_arch}/kubectl" kubelet
-        logger_info "end to download kubelet"
+        logger_info "end to download kubelet."
     fi
     cd - &>/dev/null
 }
@@ -128,9 +134,62 @@ function download() {
     fi 
 }
 
+function set_envs() {
+    [[ -f ~/.bash_profile ]] || touch ~/.bash_profile
+    if [ "x${MINIKUBE_HOME}" = "x" ] 
+    then 
+        MINIKUBE_HOME="${BASE_DIR}"
+    fi 
+    export MINIKUBE_HOME="${MINIKUBE_HOME}"
+    export PATH=$MINIKUBE_HOME/bin:$PATH
+    append_text_to_file "export MINIKUBE_HOME=${MINIKUBE_HOME}" ~/.bash_profile
+    append_text_to_file 'export PATH=$MINIKUBE_HOME/bin:$PATH' ~/.bash_profile
+}
+
+function install() {
+    [[ -d "${MINIKUBE_HOME}/bin" ]] || mkdir -p "${MINIKUBE_HOME}/bin"
+    if [[ ! -f "${MINIKUBE_HOME}/bin/minikube" ]]
+    then 
+        logger_info "start to install minikube."
+        cp -f "${BASE_DIR}/.bin/minikube" "${MINIKUBE_HOME}/bin/minikube"
+        chmod a+rx "${MINIKUBE_HOME}/bin/minikube"
+        logger_info "end to install minikube."
+    fi
+    if [[ ! -f "${MINIKUBE_HOME}/bin/kubelet" ]]
+    then
+        logger_info "start to install kubelet."
+        cp -f "${BASE_DIR}/.bin/kubelet" "${MINIKUBE_HOME}/bin/kubelet"
+        chmod a+rx "${MINIKUBE_HOME}/bin/kubelet"
+        logger_info "end to install kubelet."
+    fi 
+}
+
+# ${1} text
+# ${2} file
+function append_text_to_file() {
+    local text="${1}"
+    local file="${2}"
+    if [ -f "${file}" ] 
+    then 
+        if [[ ! $(cat "${file}" | grep -F "${text}" | grep -v grep) ]] 
+        then 
+            logger_info "append text[${text}] to file[file]"
+            echo "${text}" | tee -a "${file}"
+        else 
+            logger_warn "text[${text}] is found in file[${file}], skip append."
+        fi
+    else 
+        logger_warn "file[${file}] not exists."
+    fi 
+}
+
 mkdir_dirs
 
 check_requirement
 
 download_binaries
+
+set_envs
+
+install
 

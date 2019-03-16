@@ -13,6 +13,11 @@ MINIKUBE_HOME=/opt/minikube
 # if not set, this value will be the latest stable version
 KUBE_VERSION=v1.13.4
 
+# the registry where to pull the kubernetes related images
+# if not set, this value will be k8s.gcr.io
+# in China, because of the GFW, this value can be docker.io/mirrorgooglecontainers
+REGISTRY_MIRROR=mirrorgooglecontainers
+
 BASE_DIR=$(cd $(dirname "$BASH_SOURCE[0]"); pwd)
 
 RED=$(tput setaf 1)
@@ -218,6 +223,86 @@ function append_text_to_file() {
     fi 
 }
 
+function pull_images() {
+    REGISTRY_MIRROR="${REGISTRY_MIRROR:-k8s.gcr.io}"
+    # images are defined in pkg/minikube/constants/constants.go
+    pull_and_tag_image "${REGISTRY_MIRROR}/kube-proxy-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-proxy-amd64:${KUBE_VERSION}"
+    pull_and_tag_image "${REGISTRY_MIRROR}/kube-scheduler-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-scheduler-amd64:${KUBE_VERSION}"
+    pull_and_tag_image "${REGISTRY_MIRROR}/kube-controller-manager-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-controller-manager-amd64:${KUBE_VERSION}"
+    pull_and_tag_image "${REGISTRY_MIRROR}/kube-apiserver-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-apiserver-amd64:${KUBE_VERSION}"
+    if [[ "${KUBE_VERSION}" > "v1.13.0" ]] || [ "${KUBE_VERSION}" = "v1.13.0" ]
+    then 
+        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
+        pull_and_tag_image "${REGISTRY_MIRROR}/pause:3.1" "k8s.gcr.io/pause:3.1"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.24" "k8s.gcr.io/etcd-amd64:3.2.24"
+        pull_and_tag_image "coredns/coredns:1.2.6" "k8s.gcr.io/coredns:1.2.6"
+    elif [[ "${KUBE_VERSION}" > "v1.12.0" ]] || [ "${KUBE_VERSION}" = "v1.12.0" ]
+    then
+        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
+        pull_and_tag_image "${REGISTRY_MIRROR}/pause:3.1" "k8s.gcr.io/pause:3.1"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.24" "k8s.gcr.io/etcd-amd64:3.2.24"
+        pull_and_tag_image "coredns/coredns:1.2.2" "k8s.gcr.io/coredns:1.2.2"
+    elif [[ "${KUBE_VERSION}" > "v1.11.0" ]] || [ "${KUBE_VERSION}" = "v1.11.0" ]
+    then
+        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
+        pull_and_tag_image "${REGISTRY_MIRROR}/pause:3.1" "k8s.gcr.io/pause:3.1"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.18" "k8s.gcr.io/etcd-amd64:3.2.18"
+        pull_and_tag_image "coredns/coredns:1.1.3" "k8s.gcr.io/coredns:1.1.3"
+    elif [[ "${KUBE_VERSION}" > "v1.10.0" ]] || [ "${KUBE_VERSION}" = "v1.10.0" ]
+    then
+        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
+        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.1.12" "k8s.gcr.io/etcd-amd64:3.1.12"
+    elif [[ "${KUBE_VERSION}" > "v1.9.0" ]] || [ "${KUBE_VERSION}" = "v1.9.0" ]
+    then
+        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.0" "k8s.gcr.io/pause-amd64:3.0"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.7" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.7"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.7" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.7"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.7" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.7"
+        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.1.10" "k8s.gcr.io/etcd-amd64:3.1.10"
+    elif [[ "${KUBE_VERSION}" > "v1.8.0" ]] || [ "${KUBE_VERSION}" = "v1.8.0" ]
+    then
+        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.0" "k8s.gcr.io/pause-amd64:3.0"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.5" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.5"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.5" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.5"
+        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.5" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.5"
+        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.0.17" "k8s.gcr.io/etcd-amd64:3.0.17"
+    fi 
+    pull_and_tag_image "${REGISTRY_MIRROR}/kubernetes-dashboard-amd64:v1.10.1" "k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1"
+    pull_and_tag_image "${REGISTRY_MIRROR}/kube-addon-manager:v8.6" "k8s.gcr.io/kube-addon-manager:v8.6"
+}
+
+# ${1} image_url
+# ${2} new_image_url
+function pull_and_tag_image() {
+    local image_url="${1}"
+    local new_image_url="${2}"
+    if [[ $(echo "${image_url}" | grep "^k8s.gcr.io" | grep -v grep) ]]
+    then 
+        if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1,wq $2 }' | grep "${new_image_url}" | grep -v grep) ]] 
+        then
+            docker pull "${image_url}"
+        fi
+    else 
+        if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1,wq $2 }' | grep "${new_image_url}" | grep -v grep) ]] 
+        then
+            docker pull "${image_url}"
+            docker tag "${image_url}" "${new_image_url}"
+        fi
+    fi 
+}
+
 function start() {
     . ~/.bash_profile
     minikube start --vm-driver none --kubernetes-version "${KUBE_VERSION}"
@@ -234,4 +319,6 @@ download_binaries
 set_envs
 
 install
+
+pull_images
 

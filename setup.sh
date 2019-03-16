@@ -290,12 +290,12 @@ function pull_and_tag_image() {
     local new_image_url="${2}"
     if [[ $(echo "${image_url}" | grep "^k8s.gcr.io" | grep -v grep) ]]
     then 
-        if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1,wq $2 }' | grep "${new_image_url}" | grep -v grep) ]] 
+        if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1, $2 }' | grep "${new_image_url}" | grep -v grep) ]] 
         then
             docker pull "${image_url}"
         fi
     else 
-        if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1,wq $2 }' | grep "${new_image_url}" | grep -v grep) ]] 
+        if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1, $2 }' | grep "${new_image_url}" | grep -v grep) ]] 
         then
             docker pull "${image_url}"
             docker tag "${image_url}" "${new_image_url}"

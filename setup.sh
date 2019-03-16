@@ -283,22 +283,17 @@ function pull_images() {
     pull_and_tag_image "${REGISTRY_MIRROR}/kube-addon-manager:v8.6" "k8s.gcr.io/kube-addon-manager:v8.6"
 }
 
-# ${1} image_url
-# ${2} new_image_url
+# ${1} image
+# ${2} new_image
 function pull_and_tag_image() {
-    local image_url="${1}"
-    local new_image_url="${2}"
-    if [[ $(echo "${image_url}" | grep "^k8s.gcr.io" | grep -v grep) ]]
-    then 
-        if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1, $2 }' | grep "${new_image_url}" | grep -v grep) ]] 
-        then
-            docker pull "${image_url}"
-        fi
-    else 
-        if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1, $2 }' | grep "${new_image_url}" | grep -v grep) ]] 
-        then
-            docker pull "${image_url}"
-            docker tag "${image_url}" "${new_image_url}"
+    local image="${1}"
+    local new_image="${2}"
+    if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1, $2 }' | grep "${new_image}" | grep -v grep) ]] 
+    then
+        docker pull "${image}"
+        if [[ ! $(echo "${image}" | grep "^k8s.gcr.io" | grep -v grep) ]]
+        then 
+            docker tag "${image}" "${new_image}"
         fi
     fi 
 }

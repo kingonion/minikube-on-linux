@@ -226,75 +226,85 @@ function append_text_to_file() {
 function pull_images() {
     REGISTRY_MIRROR="${REGISTRY_MIRROR:-k8s.gcr.io}"
     # images are defined in pkg/minikube/constants/constants.go
-    pull_and_tag_image "${REGISTRY_MIRROR}/kube-proxy-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-proxy-amd64:${KUBE_VERSION}"
-    pull_and_tag_image "${REGISTRY_MIRROR}/kube-scheduler-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-scheduler-amd64:${KUBE_VERSION}"
-    pull_and_tag_image "${REGISTRY_MIRROR}/kube-controller-manager-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-controller-manager-amd64:${KUBE_VERSION}"
-    pull_and_tag_image "${REGISTRY_MIRROR}/kube-apiserver-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-apiserver-amd64:${KUBE_VERSION}"
+    pull_and_save_image "${REGISTRY_MIRROR}/kube-proxy-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-proxy-amd64:${KUBE_VERSION}"
+    pull_and_save_image "${REGISTRY_MIRROR}/kube-scheduler-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-scheduler-amd64:${KUBE_VERSION}"
+    pull_and_save_image "${REGISTRY_MIRROR}/kube-controller-manager-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-controller-manager-amd64:${KUBE_VERSION}"
+    pull_and_save_image "${REGISTRY_MIRROR}/kube-apiserver-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-apiserver-amd64:${KUBE_VERSION}"
     if [[ "${KUBE_VERSION}" > "v1.13.0" ]] || [ "${KUBE_VERSION}" = "v1.13.0" ]
     then 
-        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
-        pull_and_tag_image "${REGISTRY_MIRROR}/pause:3.1" "k8s.gcr.io/pause:3.1"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.24" "k8s.gcr.io/etcd-amd64:3.2.24"
-        pull_and_tag_image "coredns/coredns:1.2.6" "k8s.gcr.io/coredns:1.2.6"
+        pull_and_save_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
+        pull_and_save_image "${REGISTRY_MIRROR}/pause:3.1" "k8s.gcr.io/pause:3.1"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.24" "k8s.gcr.io/etcd-amd64:3.2.24"
+        pull_and_save_image "coredns/coredns:1.2.6" "k8s.gcr.io/coredns:1.2.6"
     elif [[ "${KUBE_VERSION}" > "v1.12.0" ]] || [ "${KUBE_VERSION}" = "v1.12.0" ]
     then
-        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
-        pull_and_tag_image "${REGISTRY_MIRROR}/pause:3.1" "k8s.gcr.io/pause:3.1"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.24" "k8s.gcr.io/etcd-amd64:3.2.24"
-        pull_and_tag_image "coredns/coredns:1.2.2" "k8s.gcr.io/coredns:1.2.2"
+        pull_and_save_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
+        pull_and_save_image "${REGISTRY_MIRROR}/pause:3.1" "k8s.gcr.io/pause:3.1"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.24" "k8s.gcr.io/etcd-amd64:3.2.24"
+        pull_and_save_image "coredns/coredns:1.2.2" "k8s.gcr.io/coredns:1.2.2"
     elif [[ "${KUBE_VERSION}" > "v1.11.0" ]] || [ "${KUBE_VERSION}" = "v1.11.0" ]
     then
-        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
-        pull_and_tag_image "${REGISTRY_MIRROR}/pause:3.1" "k8s.gcr.io/pause:3.1"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.18" "k8s.gcr.io/etcd-amd64:3.2.18"
-        pull_and_tag_image "coredns/coredns:1.1.3" "k8s.gcr.io/coredns:1.1.3"
+        pull_and_save_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
+        pull_and_save_image "${REGISTRY_MIRROR}/pause:3.1" "k8s.gcr.io/pause:3.1"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.18" "k8s.gcr.io/etcd-amd64:3.2.18"
+        pull_and_save_image "coredns/coredns:1.1.3" "k8s.gcr.io/coredns:1.1.3"
     elif [[ "${KUBE_VERSION}" > "v1.10.0" ]] || [ "${KUBE_VERSION}" = "v1.10.0" ]
     then
-        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
-        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.1.12" "k8s.gcr.io/etcd-amd64:3.1.12"
+        pull_and_save_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.8" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
+        pull_and_save_image "${REGISTRY_MIRROR}/etcd-amd64:3.1.12" "k8s.gcr.io/etcd-amd64:3.1.12"
     elif [[ "${KUBE_VERSION}" > "v1.9.0" ]] || [ "${KUBE_VERSION}" = "v1.9.0" ]
     then
-        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.0" "k8s.gcr.io/pause-amd64:3.0"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.7" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.7"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.7" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.7"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.7" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.7"
-        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.1.10" "k8s.gcr.io/etcd-amd64:3.1.10"
+        pull_and_save_image "${REGISTRY_MIRROR}/pause-amd64:3.0" "k8s.gcr.io/pause-amd64:3.0"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.7" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.7"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.7" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.7"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.7" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.7"
+        pull_and_save_image "${REGISTRY_MIRROR}/etcd-amd64:3.1.10" "k8s.gcr.io/etcd-amd64:3.1.10"
     elif [[ "${KUBE_VERSION}" > "v1.8.0" ]] || [ "${KUBE_VERSION}" = "v1.8.0" ]
     then
-        pull_and_tag_image "${REGISTRY_MIRROR}/pause-amd64:3.0" "k8s.gcr.io/pause-amd64:3.0"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.5" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.5"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.5" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.5"
-        pull_and_tag_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.5" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.5"
-        pull_and_tag_image "${REGISTRY_MIRROR}/etcd-amd64:3.0.17" "k8s.gcr.io/etcd-amd64:3.0.17"
+        pull_and_save_image "${REGISTRY_MIRROR}/pause-amd64:3.0" "k8s.gcr.io/pause-amd64:3.0"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-kube-dns-amd64:1.14.5" "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.5"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.5" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.5"
+        pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.5" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.5"
+        pull_and_save_image "${REGISTRY_MIRROR}/etcd-amd64:3.0.17" "k8s.gcr.io/etcd-amd64:3.0.17"
     fi 
-    pull_and_tag_image "${REGISTRY_MIRROR}/kubernetes-dashboard-amd64:v1.10.1" "k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1"
-    pull_and_tag_image "${REGISTRY_MIRROR}/kube-addon-manager:v8.6" "k8s.gcr.io/kube-addon-manager:v8.6"
+    pull_and_save_image "${REGISTRY_MIRROR}/kubernetes-dashboard-amd64:v1.10.1" "k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1"
+    pull_and_save_image "${REGISTRY_MIRROR}/kube-addon-manager:v8.6" "k8s.gcr.io/kube-addon-manager:v8.6"
 }
 
 # ${1} image
 # ${2} new_image
-function pull_and_tag_image() {
+function pull_and_save_image() {
     local image="${1}"
     local new_image="${2}"
+    local file=$(echo "${new_image}" | awk -F '/' '{ print $NF }' | awk -F ':' '{ printf "%s_%s.tar", $1, $2}')
     if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1, $2 }' | grep "${new_image}" | grep -v grep) ]] 
     then
-        docker pull "${image}"
-        if [[ ! $(echo "${image}" | grep "^k8s.gcr.io" | grep -v grep) ]]
+        if [ -f "${BASE_DIR}/.images/${file}" ] 
         then 
-            docker tag "${image}" "${new_image}"
+            docker load -i "${BASE_DIR}/.images/${file}"
+        else
+            docker pull "${image}"
+            if [[ ! $(echo "${image}" | grep "^k8s.gcr.io" | grep -v grep) ]]
+            then 
+                docker tag "${image}" "${new_image}"
+            fi
         fi
+    fi 
+    if [ ! -f "${BASE_DIR}/.images/${file}" ] 
+    then 
+        docker save -o "${BASE_DIR}/.images/${file}" "${new_image}"
     fi 
 }
 

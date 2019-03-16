@@ -6,8 +6,12 @@ set -e
 
 
 # define the home directory of minikube
-# default value is current directory if not set
+# if not set, this value will be the current directory 
 MINIKUBE_HOME=/opt/minikube
+
+# version of kubernetes
+# if not set, this value will be the latest stable version
+KUBE_VERSION=v1.13.4
 
 BASE_DIR=$(cd $(dirname "$BASH_SOURCE[0]"); pwd)
 
@@ -93,25 +97,45 @@ function get_host_arch() {
     echo "${host_arch}"
 }
 
+function get_kube_version() {
+    if [ "x${KUBE_VERSION}" = "x" ] 
+    then 
+        cd /tmp &>/dev/null
+        logger_info "start to get kubernetes version."
+        download "https://storage.googleapis.com/kubernetes-release/release/stable.txt" stable.txt
+        KUBE_VERSION=$(cat stable.txt | awk 'NR == 1 { print }')
+        cd - &>/dev/null
+    fi
+}
+
 # download minikube and kubelet
 function download_binaries() {
     local host_os=$(get_host_os)
     local host_arch=$(get_host_arch)
     STORAGE_HOST="${STORAGE_HOST:-https://storage.googleapis.com}"
     cd "${BASE_DIR}/.bin" &>/dev/null
+    # main process
     if [ ! -f minikube ] 
     then 
         logger_info "start to download minikube."
         download "${STORAGE_HOST}/minikube/releases/latest/minikube-${host_os}-${host_arch}" minikube
-        logger_info "end to download minikube"
-    fi 
+    fi
+    # kubernetes client tool
+    if [ ! -f kubectl ] 
+    then 
+        logger_info "start to download kubectl."
+        download "${STORAGE_HOST}/kubernetes-release/release/${KUBE_VERSION}/bin/${host_os}/${host_arch}/kubectl" kubectl
+    fi
+    # pkg/minikube/bootstrapper/kubeadm/kubeadm.go UpdateCluster
     if [ ! -f kubelet ] 
     then 
         logger_info "start to download kubelet."
-        download "https://storage.googleapis.com/kubernetes-release/release/stable.txt" stable.txt
-        local kube_version=$(cat stable.txt | awk 'NR == 1 { print }')
-        download "${STORAGE_HOST}/kubernetes-release/release/${kube_version}/bin/${host_os}/${host_arch}/kubectl" kubelet
-        logger_info "end to download kubelet."
+        download "${STORAGE_HOST}/kubernetes-release/release/${KUBE_VERSION}/bin/${host_os}/${host_arch}/kubelet" kubelet
+    fi
+    if [ ! -f kubeadm ] 
+    then 
+        logger_info "start to download kubeadm."
+        download "${STORAGE_HOST}/kubernetes-release/release/${KUBE_VERSION}/bin/${host_os}/${host_arch}/kubeadm" kubeadm
     fi
     cd - &>/dev/null
 }
@@ -155,12 +179,23 @@ function install() {
         chmod a+rx "${MINIKUBE_HOME}/bin/minikube"
         logger_info "end to install minikube."
     fi
-    if [[ ! -f "${MINIKUBE_HOME}/bin/kubelet" ]]
+    if [[ ! -f "${MINIKUBE_HOME}/bin/kubectl" ]]
     then
-        logger_info "start to install kubelet."
-        cp -f "${BASE_DIR}/.bin/kubelet" "${MINIKUBE_HOME}/bin/kubelet"
-        chmod a+rx "${MINIKUBE_HOME}/bin/kubelet"
-        logger_info "end to install kubelet."
+        logger_info "start to install kubectl."
+        cp -f "${BASE_DIR}/.bin/kubectl" "${MINIKUBE_HOME}/bin/kubectl"
+        chmod a+rx "${MINIKUBE_HOME}/bin/kubectl"
+        logger_info "end to install kubectl."
+    fi
+    [[ -d "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}" ]] || mkdir -p "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}"
+    if [[ ! -f "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}/kubelet" ]] 
+    then 
+        logger_info "start to cache kubelet."
+        cp -f "${BASE_DIR}/.bin/kubelet" "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}/kubelet"
+    fi 
+    if [[ ! -f "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}/kubeadm" ]]
+    then
+        logger_info "start to cache kubeadm."
+        cp -f "${BASE_DIR}/.bin/kubeadm" "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}/kubeadm"
     fi 
 }
 
@@ -183,9 +218,16 @@ function append_text_to_file() {
     fi 
 }
 
+function start() {
+    . ~/.bash_profile
+    minikube start --vm-driver none --kubernetes-version "${KUBE_VERSION}"
+}
+
 mkdir_dirs
 
 check_requirement
+
+get_kube_version
 
 download_binaries
 

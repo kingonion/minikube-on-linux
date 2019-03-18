@@ -313,8 +313,12 @@ function pull_and_save_image() {
 }
 
 function start() {
+    set +e
     . ~/.bash_profile
-    minikube start --vm-driver none --kubernetes-version "${KUBE_VERSION}"
+    set -e
+    local cgroup_driver=$(docker info 2>/dev/null | grep 'Cgroup Driver' | awk -F ':' '{ print $2 }' | tr -d '[:blank:]')
+    [[ ! -z "${cgroup_driver}" ]] || cgroup_driver=systemd
+    minikube start --vm-driver none --kubernetes-version "${KUBE_VERSION}" --extra-config kubelet.cgroup-driver="${cgroup_driver}"
 }
 
 mkdir_dirs
@@ -331,3 +335,4 @@ install
 
 pull_images
 
+start

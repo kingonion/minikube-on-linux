@@ -13,10 +13,14 @@ MINIKUBE_HOME=/opt/minikube
 # if not set, this value will be the latest stable version
 KUBE_VERSION=v1.13.4
 
+# version of minikube
+# default value is latest, you can specify a version, like v0.35.0, v0.34.0
+MINIKUBE_VERSION=latest
+
 # the registry where to pull the kubernetes related images
 # if not set, this value will be k8s.gcr.io
-# in China, because of the GFW, this value can be docker.io/mirrorgooglecontainers
-REGISTRY_MIRROR=mirrorgooglecontainers
+# in China, because of the GFW, this value can be registry.cn-hangzhou.aliyuncs.com/google_containers
+REGISTRY_MIRROR=registry.cn-hangzhou.aliyuncs.com/google_containers
 
 BASE_DIR=$(cd $(dirname "$BASH_SOURCE[0]"); pwd)
 
@@ -106,7 +110,7 @@ function get_kube_version() {
     then 
         cd /tmp &>/dev/null
         logger_info "start to get kubernetes version."
-        download "https://storage.googleapis.com/kubernetes-release/release/stable.txt" stable.txt
+        download "${STORAGE_HOST}/kubernetes-release/release/stable.txt" stable.txt
         KUBE_VERSION=$(cat stable.txt | awk 'NR == 1 { print }')
         cd - &>/dev/null
     fi
@@ -122,7 +126,7 @@ function download_binaries() {
     if [ ! -f minikube ] 
     then 
         logger_info "start to download minikube."
-        download "${STORAGE_HOST}/minikube/releases/latest/minikube-${host_os}-${host_arch}" minikube
+        download "${STORAGE_HOST}/minikube/releases/${MINIKUBE_VERSION}/minikube-${host_os}-${host_arch}" minikube
     fi
     # kubernetes client tool
     if [ ! -f kubectl ] 
@@ -280,6 +284,7 @@ function pull_images() {
     fi 
     pull_and_save_image "${REGISTRY_MIRROR}/kubernetes-dashboard-amd64:v1.10.1" "k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1"
     pull_and_save_image "${REGISTRY_MIRROR}/kube-addon-manager:v8.6" "k8s.gcr.io/kube-addon-manager:v8.6"
+    pull_and_save_image "${REGISTRY_MIRROR}/storage-provisioner:v1.8.1" "gcr.io/k8s-minikube/storage-provisioner:v1.8.1"
 }
 
 # ${1} image

@@ -45,8 +45,7 @@ function logger_warn() {
 
 # check docker is started or not
 function check_requirement() {
-    docker info &>/dev/null
-    if [ $? -ne 0 ] 
+    if [[ ! $(docker info 2>/dev/null) ]] 
     then 
         logger_error "docker is not running, please start it first."
         exit 1

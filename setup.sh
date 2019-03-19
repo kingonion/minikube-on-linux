@@ -156,7 +156,7 @@ function download() {
     local file_name="${2}"
     if [[ $(which curl) ]]
     then 
-        curl -fsL --retry 3 --keepalive-time 2 "${file_url}" -o "${file_name}"
+        curl -fsSL "${file_url}" -o "${file_name}"
     elif [[ $(which wget) ]] 
     then
         wget -q "${file_url}" -O "${file_name}"
@@ -241,7 +241,7 @@ function pull_images() {
         pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
         pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
         pull_and_save_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.24" "k8s.gcr.io/etcd-amd64:3.2.24"
-        pull_and_save_image "coredns/coredns:1.2.6" "k8s.gcr.io/coredns:1.2.6"
+        pull_and_save_image "${REGISTRY_MIRROR}/coredns:1.2.6" "k8s.gcr.io/coredns:1.2.6"
     elif [[ "${KUBE_VERSION}" > "v1.12.0" ]] || [ "${KUBE_VERSION}" = "v1.12.0" ]
     then
         pull_and_save_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
@@ -250,7 +250,7 @@ function pull_images() {
         pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
         pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
         pull_and_save_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.24" "k8s.gcr.io/etcd-amd64:3.2.24"
-        pull_and_save_image "coredns/coredns:1.2.2" "k8s.gcr.io/coredns:1.2.2"
+        pull_and_save_image "${REGISTRY_MIRROR}/coredns:1.2.2" "k8s.gcr.io/coredns:1.2.2"
     elif [[ "${KUBE_VERSION}" > "v1.11.0" ]] || [ "${KUBE_VERSION}" = "v1.11.0" ]
     then
         pull_and_save_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
@@ -259,7 +259,7 @@ function pull_images() {
         pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
         pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
         pull_and_save_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.18" "k8s.gcr.io/etcd-amd64:3.2.18"
-        pull_and_save_image "coredns/coredns:1.1.3" "k8s.gcr.io/coredns:1.1.3"
+        pull_and_save_image "${REGISTRY_MIRROR}/coredns:1.1.3" "k8s.gcr.io/coredns:1.1.3"
     elif [[ "${KUBE_VERSION}" > "v1.10.0" ]] || [ "${KUBE_VERSION}" = "v1.10.0" ]
     then
         pull_and_save_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"

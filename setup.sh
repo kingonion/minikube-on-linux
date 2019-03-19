@@ -230,9 +230,13 @@ function pull_images() {
     REGISTRY_MIRROR="${REGISTRY_MIRROR:-k8s.gcr.io}"
     # images are defined in pkg/minikube/constants/constants.go
     pull_and_save_image "${REGISTRY_MIRROR}/kube-proxy-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-proxy-amd64:${KUBE_VERSION}"
+    docker tag "k8s.gcr.io/kube-proxy-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-proxy:${KUBE_VERSION}"
     pull_and_save_image "${REGISTRY_MIRROR}/kube-scheduler-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-scheduler-amd64:${KUBE_VERSION}"
+    docker tag "k8s.gcr.io/kube-scheduler-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-scheduler:${KUBE_VERSION}"
     pull_and_save_image "${REGISTRY_MIRROR}/kube-controller-manager-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-controller-manager-amd64:${KUBE_VERSION}"
+    docker tag "k8s.gcr.io/kube-controller-manager-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-controller-manager:${KUBE_VERSION}"
     pull_and_save_image "${REGISTRY_MIRROR}/kube-apiserver-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-apiserver-amd64:${KUBE_VERSION}"
+    docker tag "k8s.gcr.io/kube-apiserver-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-apiserver:${KUBE_VERSION}"
     if [[ "${KUBE_VERSION}" > "v1.13.0" ]] || [ "${KUBE_VERSION}" = "v1.13.0" ]
     then 
         pull_and_save_image "${REGISTRY_MIRROR}/pause-amd64:3.1" "k8s.gcr.io/pause-amd64:3.1"
@@ -241,6 +245,7 @@ function pull_images() {
         pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-dnsmasq-nanny-amd64:1.14.8" "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.8"
         pull_and_save_image "${REGISTRY_MIRROR}/k8s-dns-sidecar-amd64:1.14.8" "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.8"
         pull_and_save_image "${REGISTRY_MIRROR}/etcd-amd64:3.2.24" "k8s.gcr.io/etcd-amd64:3.2.24"
+        docker tag "k8s.gcr.io/etcd-amd64:3.2.24" "k8s.gcr.io/etcd:3.2.24"
         pull_and_save_image "${REGISTRY_MIRROR}/coredns:1.2.6" "k8s.gcr.io/coredns:1.2.6"
     elif [[ "${KUBE_VERSION}" > "v1.12.0" ]] || [ "${KUBE_VERSION}" = "v1.12.0" ]
     then

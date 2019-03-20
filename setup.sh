@@ -293,7 +293,12 @@ function pull_images() {
     fi 
     pull_and_save_image "${REGISTRY_MIRROR}/kubernetes-dashboard-amd64:v1.10.1" "k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1"
     pull_and_save_image "${REGISTRY_MIRROR}/kube-addon-manager:v8.6" "k8s.gcr.io/kube-addon-manager:v8.6"
-    pull_and_save_image "${REGISTRY_MIRROR}/storage-provisioner:v1.8.1" "gcr.io/k8s-minikube/storage-provisioner:v1.8.1"
+    if [[ $(echo "${REGISTRY_MIRROR}" | grep "^gcr.io" | grep -v grep) ]] 
+    then 
+        pull_and_save_image "gcr.io/k8s-minikube/storage-provisioner:v1.8.1" "gcr.io/k8s-minikube/storage-provisioner:v1.8.1"
+    else 
+        pull_and_save_image "${REGISTRY_MIRROR}/storage-provisioner:v1.8.1" "gcr.io/k8s-minikube/storage-provisioner:v1.8.1"
+    fi 
 }
 
 # ${1} image

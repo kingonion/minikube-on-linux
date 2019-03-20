@@ -44,7 +44,7 @@ function logger_info() {
 function logger_warn() {
     local time=$(date +'%F %T')
     printf "${YELLOW}${time} - WARN - %s${RESET}\n" "$@"
-    echo "${time} - INFO - $@" >> ${BASE_DIR}/logs/setup.log
+    echo "${time} - WARN - $@" >> ${BASE_DIR}/logs/setup.log
 }
 
 # check docker is started or not
@@ -174,8 +174,12 @@ function set_envs() {
     fi 
     export MINIKUBE_HOME="${MINIKUBE_HOME}"
     export PATH=$MINIKUBE_HOME/bin:$PATH
+    export MINIKUBE_WANTUPDATENOTIFICATION=false
+    export MINIKUBE_WANTREPORTERRORPROMPT=false
     append_text_to_file "export MINIKUBE_HOME=${MINIKUBE_HOME}" ~/.bash_profile
     append_text_to_file 'export PATH=$MINIKUBE_HOME/bin:$PATH' ~/.bash_profile
+    append_text_to_file 'export MINIKUBE_WANTUPDATENOTIFICATION=false' ~/.bash_profile
+    append_text_to_file 'export MINIKUBE_WANTREPORTERRORPROMPT=false' ~/.bash_profile
 }
 
 function install() {

@@ -56,9 +56,10 @@ function check_requirement() {
     fi
 }
 
-function mkdir_dirs() {
-    [[ -d "${BASE_DIR}/.bin" ]] || mkdir -p "${BASE_DIR}/.bin"
-    [[ -d "${BASE_DIR}/.images" ]] || mkdir -p "${BASE_DIR}/.images"
+function make_dirs() {
+    [[ -d "${BASE_DIR}/.cache/${MINIKUBE_VERSION}" ]] || mkdir -p "${BASE_DIR}/.cache/${MINIKUBE_VERSION}"
+    [[ -d "${BASE_DIR}/.cache/${KUBE_VERSION}" ]] || mkdir -p "${BASE_DIR}/.cache/${KUBE_VERSION}"
+    [[ -d "${BASE_DIR}/.cache/images" ]] || mkdir -p "${BASE_DIR}/.cache/images"
     [[ -d "${BASE_DIR}/logs" ]] || mkdir -p "${BASE_DIR}/logs"
 }
 
@@ -121,13 +122,15 @@ function download_binaries() {
     local host_os=$(get_host_os)
     local host_arch=$(get_host_arch)
     STORAGE_HOST="${STORAGE_HOST:-https://storage.googleapis.com}"
-    cd "${BASE_DIR}/.bin" &>/dev/null
+    cd "${BASE_DIR}/.cache/${MINIKUBE_VERSION}" &>/dev/null
     # main process
     if [ ! -f minikube ] 
     then 
         logger_info "start to download minikube."
         download "${STORAGE_HOST}/minikube/releases/${MINIKUBE_VERSION}/minikube-${host_os}-${host_arch}" minikube
     fi
+    cd - &>/dev/null
+    cd "${BASE_DIR}/.cache/${KUBE_VERSION}" &>/dev/null
     # kubernetes client tool
     if [ ! -f kubectl ] 
     then 
@@ -187,14 +190,14 @@ function install() {
     if [[ ! -f "${MINIKUBE_HOME}/bin/minikube" ]]
     then 
         logger_info "start to install minikube."
-        cp -f "${BASE_DIR}/.bin/minikube" "${MINIKUBE_HOME}/bin/minikube"
+        cp -f "${BASE_DIR}/.cache/${MINIKUBE_VERSION}/minikube" "${MINIKUBE_HOME}/bin/minikube"
         chmod a+rx "${MINIKUBE_HOME}/bin/minikube"
         logger_info "end to install minikube."
     fi
     if [[ ! -f "${MINIKUBE_HOME}/bin/kubectl" ]]
     then
         logger_info "start to install kubectl."
-        cp -f "${BASE_DIR}/.bin/kubectl" "${MINIKUBE_HOME}/bin/kubectl"
+        cp -f "${BASE_DIR}/.cache/${KUBE_VERSION}/kubectl" "${MINIKUBE_HOME}/bin/kubectl"
         chmod a+rx "${MINIKUBE_HOME}/bin/kubectl"
         logger_info "end to install kubectl."
     fi
@@ -202,12 +205,12 @@ function install() {
     if [[ ! -f "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}/kubelet" ]] 
     then 
         logger_info "start to cache kubelet."
-        cp -f "${BASE_DIR}/.bin/kubelet" "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}/kubelet"
+        cp -f "${BASE_DIR}/.cache/${KUBE_VERSION}/kubelet" "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}/kubelet"
     fi 
     if [[ ! -f "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}/kubeadm" ]]
     then
         logger_info "start to cache kubeadm."
-        cp -f "${BASE_DIR}/.bin/kubeadm" "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}/kubeadm"
+        cp -f "${BASE_DIR}/.cache/${KUBE_VERSION}/kubeadm" "${MINIKUBE_HOME}/.minikube/cache/${KUBE_VERSION}/kubeadm"
     fi 
 }
 
@@ -309,9 +312,9 @@ function pull_and_save_image() {
     local file=$(echo "${new_image}" | awk -F '/' '{ print $NF }' | awk -F ':' '{ printf "%s_%s.tar", $1, $2}')
     if [[ ! $(docker images | awk '{ printf "%s:%s\n", $1, $2 }' | grep "${new_image}" | grep -v grep) ]] 
     then
-        if [ -f "${BASE_DIR}/.images/${file}" ] 
+        if [ -f "${BASE_DIR}/.cache/images/${file}" ] 
         then 
-            docker load -i "${BASE_DIR}/.images/${file}"
+            docker load -i "${BASE_DIR}/.cache/images/${file}"
         else
             docker pull "${image}"
             if [[ ! $(echo "${image}" | grep "^k8s.gcr.io" | grep -v grep) ]]
@@ -320,9 +323,9 @@ function pull_and_save_image() {
             fi
         fi
     fi 
-    if [ ! -f "${BASE_DIR}/.images/${file}" ] 
+    if [ ! -f "${BASE_DIR}/.cache/images/${file}" ] 
     then 
-        docker save -o "${BASE_DIR}/.images/${file}" "${new_image}"
+        docker save -o "${BASE_DIR}/.cache/images/${file}" "${new_image}"
     fi 
 }
 
@@ -335,7 +338,7 @@ function start() {
     minikube start --vm-driver none --kubernetes-version "${KUBE_VERSION}" --extra-config kubelet.cgroup-driver="${cgroup_driver}"
 }
 
-mkdir_dirs
+make_dirs
 
 check_requirement
 

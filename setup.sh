@@ -338,6 +338,12 @@ function start() {
     minikube start --vm-driver none --kubernetes-version "${KUBE_VERSION}" --extra-config kubelet.cgroup-driver="${cgroup_driver}"
 }
 
+function package() {
+    cd "${BASE_DIR}/.." &>/dev/null
+    tar -czf minikube-autoinstall.tar.gz ./.cache setup.sh
+    cd - &>/dev/null
+}
+
 make_dirs
 
 check_requirement

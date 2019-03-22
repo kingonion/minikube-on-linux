@@ -17,6 +17,9 @@ KUBE_VERSION=v1.13.4
 # default value is latest, you can specify a version, like v0.35.0, v0.34.0
 MINIKUBE_VERSION=latest
 
+# save docker images to local filesystem or not
+CACHE_IMAGES=true
+
 # the registry where to pull the kubernetes related images
 # if not set, this value will be k8s.gcr.io
 # in China, because of the GFW, this value can be registry.cn-hangzhou.aliyuncs.com/google_containers
@@ -323,7 +326,7 @@ function pull_and_save_image() {
             fi
         fi
     fi 
-    if [ ! -f "${BASE_DIR}/.cache/images/${file}" ] 
+    if [ ! -f "${BASE_DIR}/.cache/images/${file}" ] && [ "x${CACHE_IMAGES}" = "xtrue" ]
     then 
         docker save -o "${BASE_DIR}/.cache/images/${file}" "${new_image}"
     fi 
@@ -339,23 +342,43 @@ function start() {
 }
 
 function package() {
-    cd "${BASE_DIR}/.." &>/dev/null
-    tar -czf minikube-autoinstall.tar.gz ./.cache setup.sh
+    [[ -d "${BASE_DIR}/target/minikube-on-linux" ]] || mkdir -p "${BASE_DIR}/target/minikube-on-linux"
+    cd "${BASE_DIR}/target" &>/dev/null
+    cp -rfp ../.cache ../setup.sh minikube-on-linux/
+    tar -czf minikube-on-linux.tar.gz minikube-on-linux
+    rm -rf minikube-on-linux
     cd - &>/dev/null
+}
+
+function usage() {
+    echo "Usage:"
+    echo "    bash setup.sh install|package|start"
 }
 
 make_dirs
 
 check_requirement
 
-get_kube_version
-
-download_binaries
-
-set_envs
-
-install
-
-pull_images
-
-start
+case "$1" in 
+    install)
+        get_kube_version
+        download_binaries
+        set_envs
+        install
+        pull_images
+        ;;
+    package)
+        get_kube_version
+        download_binaries
+        set_envs
+        install
+        pull_images
+        package
+        ;;
+    start)
+        start
+        ;;
+    *)
+        usage
+        ;;
+esac

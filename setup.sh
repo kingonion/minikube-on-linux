@@ -158,6 +158,7 @@ function download_binaries() {
 # ${1} file url
 # ${2} file name
 function download() {
+    set +e
     local file_url="${1}"
     local file_name="${2}"
     if [[ $(which curl) ]]
@@ -169,7 +170,15 @@ function download() {
     else 
         logger_error "Couldn't find curl or wget, please install one at least."
         exit 1
+    fi
+    # if download failed, delete incomplete file
+    if [ $? -ne 0 ] 
+    then 
+        rm -f "${file_name}" 2>/dev/null
+        logger_error "download ${file_url} failed, exit."
+        exit 1
     fi 
+    set -e
 }
 
 function set_envs() {

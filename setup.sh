@@ -114,7 +114,7 @@ function get_kube_version() {
     then 
         cd /tmp &>/dev/null
         logger_info "start to get kubernetes version."
-        download "${STORAGE_HOST}/kubernetes-release/release/stable.txt" stable.txt
+        download "${STORAGE_HOST:-https://storage.googleapis.com}/kubernetes-release/release/stable.txt" stable.txt
         KUBE_VERSION=$(cat stable.txt | awk 'NR == 1 { print }')
         cd - &>/dev/null
     fi
@@ -245,7 +245,7 @@ function append_text_to_file() {
     fi 
 }
 
-function pull_images() {
+function pull_and_save_images() {
     REGISTRY_MIRROR="${REGISTRY_MIRROR:-k8s.gcr.io}"
     # images are defined in pkg/minikube/constants/constants.go
     pull_and_save_image "${REGISTRY_MIRROR}/kube-proxy-amd64:${KUBE_VERSION}" "k8s.gcr.io/kube-proxy-amd64:${KUBE_VERSION}"
@@ -316,6 +316,8 @@ function pull_images() {
     fi 
 }
 
+# first try to load image from cache if the image not exists on the host
+# then try to pull from the internet if the image is not cached
 # ${1} image
 # ${2} new_image
 function pull_and_save_image() {
@@ -347,6 +349,7 @@ function start() {
     set -e
     local cgroup_driver=$(docker info 2>/dev/null | grep 'Cgroup Driver' | awk -F ':' '{ print $2 }' | tr -d '[:blank:]')
     [[ ! -z "${cgroup_driver}" ]] || cgroup_driver=systemd
+    # kubelet will use cgroupfs as defualt cgroup driver
     minikube start --vm-driver none --kubernetes-version "${KUBE_VERSION}" --extra-config kubelet.cgroup-driver="${cgroup_driver}"
 }
 
@@ -361,7 +364,7 @@ function package() {
 
 function usage() {
     echo "Usage:"
-    echo "    bash setup.sh install|package|start"
+    echo "    bash setup.sh package|start"
 }
 
 make_dirs
@@ -369,23 +372,21 @@ make_dirs
 check_requirement
 
 case "$1" in 
-    install)
+    start)
         get_kube_version
         download_binaries
         set_envs
         install
-        pull_images
+        pull_and_save_images
+        start
         ;;
     package)
         get_kube_version
         download_binaries
         set_envs
         install
-        pull_images
+        pull_and_save_images
         package
-        ;;
-    start)
-        start
         ;;
     *)
         usage

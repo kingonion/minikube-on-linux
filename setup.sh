@@ -1,5 +1,10 @@
 #!/bin/bash
 #
+#      Author: neuwangcong@gmail.com
+# Description: A simple shell that can help you boot up a local kubernetes cluster
+#              on linux system easily. And you can also use the script to make a 
+#              offline minikube installation package.
+#
 
 
 set -e
@@ -189,6 +194,7 @@ function set_envs() {
     fi 
     export MINIKUBE_HOME="${MINIKUBE_HOME}"
     export PATH=$MINIKUBE_HOME/bin:$PATH
+    # old version envs
     export MINIKUBE_WANTUPDATENOTIFICATION=false
     export MINIKUBE_WANTREPORTERRORPROMPT=false
     append_text_to_file "export MINIKUBE_HOME=${MINIKUBE_HOME}" ~/.bash_profile
